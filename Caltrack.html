@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="CALTRACK — Production-Grade Iron Discipline Nutrition Log">
+    <meta name="theme-color" content="#09090b">
+    <title>CALTRACK — Iron Discipline Nutrition</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        /* ======================================================
+           DESIGN SYSTEM TOKENS
+           ====================================================== */
+        :root {
+            /* Light Theme */
+            --bg-body: #f9fafb;
+            --bg-surface: #ffffff;
+            --bg-surface-alt: #f3f4f6;
+            --bg-glass: rgba(255, 255, 255, 0.85);
+            
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            
+            --border-subtle: #e5e7eb;
+            --border-strong: #d1d5db;
+            
+            --brand-primary: #111827;
+            --brand-on-primary: #ffffff;
+            --brand-water: #3b82f6;
+            --brand-danger: #ef4444;
+            --brand-success: #10b981;
+            --brand-xp: #8b5cf6;
+
+            --macro-p: #f43f5e; 
+            --macro-c: #eab308; 
+            --macro-f: #3b82f6; 
+
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-pill: 9999px;
+            
+            --sidebar-width: 260px;
+            --mobile-nav-height: 80px;
+            
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-float: 0 12px 24px -4px rgba(0, 0, 0, 0.15);
+            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html[data-theme="dark"] {
+            --bg-body: #000000;
+            --bg-surface: #09090b;
+            --bg-surface-alt: #18181b;
+            --bg-glass: rgba(9, 9, 11, 0.85);
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #475569;
+            
+            --border-subtle: #27272a;
+            --border-strong: #3f3f46;
+            
+            --brand-primary: #ffffff;
+            --brand-on-primary: #000000;
+            
+            --shadow-sm: 0 0 0 1px var(--border-subtle);
+            --shadow-md: 0 0 0 1px var(--border-subtle), 0 8px 16px rgba(0, 0, 0, 0.4);
+            --shadow-float: 0 0 0 1px var(--border-strong), 0 12px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        /* ======================================================
+           GLOBAL RESET & UTILITIES
+           ====================================================== */
+        * { box-sizing: border-box; }
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection { background: var(--brand-water); color: #fff; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
+
+        .font-display { font-family: var(--font-display); letter-spacing: 0.02em; }
+        .font-mono { font-family: var(--font-mono); }
+        .eyebrow { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-secondary); }
+
+        .glass-panel { background: var(--bg-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .cursor-pointer { cursor: pointer; }
+
+        /* Hide Number Input Arrows */
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        /* ======================================================
+           LAYOUT & SPA
+           ====================================================== */
+        .page-view {
+            display: none; opacity: 0;
+            animation: fadeIn var(--transition-smooth) forwards;
+        }
+        .page-view.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body.public-view .app-shell { display: none !important; }
+        body.public-view .main-content { margin: 0; padding: 0; }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2.5rem; min-height: 100vh;
+        }
+
+        /* ======================================================
+           COMPONENTS
+           ====================================================== */
+        .premium-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-smooth);
+        }
+        .premium-card:hover { border-color: var(--border-strong); }
+
+        .btn { font-weight: 600; border-radius: var(--radius-sm); padding: 0.6rem 1.2rem; transition: all 0.2s; }
+        .btn-primary { background: var(--brand-primary); color: var(--brand-on-primary); border: none; }
+        .btn-primary:hover { transform: translateY(-1px); opacity: 0.9; }
+        .btn-outline-secondary { border: 1px solid var(--border-strong); color: var(--text-primary); }
+        .btn-outline-secondary:hover { background: var(--bg-surface-alt); border-color: var(--text-primary); }
+
+        .form-floating > .form-control, .form-floating > .form-select, .form-control {
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-strong);
+            color: var(--text-primary);
+            border-radius: var(--radius-sm);
+        }
+        .form-floating > .form-control:focus, .form-control:focus {
+            border-color: var(--brand-water); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .form-floating > label { color: var(--text-secondary); }
+
+        .badge-subtle {
+            background: var(--bg-surface-alt); border: 1px solid var(--border-subtle); color: var(--text-primary);
+            padding: 0.4rem 0.8rem; border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+
+        /* Editable Macro Grid Inputs */
+        .macro-input {
+            width: 100%; text-align: center; background: transparent; border: 1px solid transparent; 
+            border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 1.25rem; 
+            font-weight: 700; color: inherit; transition: all 0.2s; outline: none;
+        }
+        .macro-input:focus, .macro-input:hover { border-color: var(--border-strong); background: var(--bg-body); }
+
+        /* Navigations */
+        .sidebar {
+            width: var(--sidebar-width); height: 100vh; position: fixed; left: 0; top: 0;
+            background: var(--bg-surface); border-right: 1px solid var(--border-subtle);
+            padding: 2rem 1.5rem; display: flex; flex-direction: column; z-index: 1000;
+        }
+        .sidebar-nav-link {
+            color: var(--text-secondary); font-weight: 500; padding: 0.75rem 1rem; border-radius: var(--radius-sm);
+            display: flex; align-items: center; gap: 0.75rem; text-decoration: none; transition: all 0.2s; margin-bottom: 0.25rem;
+        }
+        .sidebar-nav-link:hover, .sidebar-nav-link.active { background: var(--bg-surface-alt); color: var(--text-primary); }
+        .sidebar-nav-link.active { font-weight: 600; }
+        .sidebar-nav-link.active i { color: var(--brand-water); }
+
+        .mobile-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
+            border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-around;
+            align-items: center; z-index: 1050; padding-bottom: env(safe-area-inset-bottom);
+        }
+        .mobile-nav-link {
+            color: var(--text-secondary); font-size: 1.5rem; text-decoration: none; padding: 1rem;
+            border-radius: var(--radius-lg); transition: all 0.2s;
+        }
+        .mobile-nav-link.active { color: var(--brand-water); background: var(--bg-surface-alt); }
+
+        /* Gauges & Visuals */
+        .gauge-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .gauge-track { stroke: var(--bg-surface-alt); fill: none; stroke-width: 8; }
+        .gauge-fill {
+            stroke: var(--brand-water); fill: none; stroke-width: 8; stroke-linecap: round;
+            stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-slim { height: 6px; border-radius: var(--radius-pill); background: var(--bg-surface-alt); }
+        .progress-slim .progress-bar { border-radius: var(--radius-pill); transition: width 0.5s ease; }
+
+        .food-item {
+            padding: 1rem; border-radius: var(--radius-sm); background: var(--bg-surface);
+            border: 1px solid var(--border-subtle); display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 0.5rem; transition: all 0.2s;
+        }
+        .food-item:hover { border-color: var(--border-strong); transform: translateX(2px); }
+
+        /* Gamification XP Bar */
+        .xp-bar { height: 4px; background: var(--bg-surface-alt); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+        .xp-fill { height: 100%; background: var(--brand-xp); width: 0%; transition: width 1s ease; }
+
+        /* Responsive Details */
+        @media (max-width: 991.98px) {
+            .main-content { margin-left: 0; padding: 1.5rem 1rem calc(var(--mobile-nav-height) + 2rem); }
+            .desk-only { display: none !important; }
+        }
+        @media (min-width: 992px) { .mob-only { display: none !important; } }
+    </style>
+</head>
+<body class="public-view">
+
+    <!-- Toast Notifications -->
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-fixed top-0 end-0 p-3 mt-3 z-3" id="toastContainer"></div>
+    </div>
+
+    <!-- APP SHELL: SIDEBAR (Desktop) -->
+    <nav class="sidebar desk-only app-shell" aria-label="Main Navigation">
+        <a href="#dashboard" class="brand-logo mb-4 text-decoration-none d-flex align-items-center gap-2" data-action="navigate" data-target="dashboard">
+            <i class="bi bi-activity fs-4 text-primary" style="color: var(--brand-water)!important;"></i> 
+            <span class="font-display fs-4" style="color: var(--text-primary);">CALTRACK</span>
+        </a>
+
+        <!-- User Profile Mini -->
+        <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3" style="background: var(--bg-surface-alt);">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:40px; height:40px; font-size:1.2rem;">JD</div>
+            <div class="flex-grow-1">
+                <div class="fw-bold fs-6 lh-1" id="sidebar-name">John Doe</div>
+                <div class="eyebrow mt-1" style="color: var(--brand-xp);">Lvl <span id="sidebar-level">1</span></div>
+                <div class="xp-bar w-100 mt-2"><div class="xp-fill" id="sidebar-xp" style="width: 0%;"></div></div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column gap-1 flex-grow-1">
+            <a href="#dashboard" class="sidebar-nav-link active" data-nav="dashboard" data-action="navigate" data-target="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+            <a href="#tracker" class="sidebar-nav-link" data-nav="tracker" data-action="navigate" data-target="tracker"><i class="bi bi-journal-check"></i> Diary</a>
+            <a href="#search" class="sidebar-nav-link" data-nav="search" data-action="navigate" data-target="search"><i class="bi bi-search"></i> Database</a>
+            <a href="#calculators" class="sidebar-nav-link" data-nav="calculators" data-action="navigate" data-target="calculators"><i class="bi bi-sliders"></i> Goal Engineer</a>
+        </div>
+        <div class="mt-auto border-top pt-3" style="border-color: var(--border-subtle) !important;">
+            <a href="#profile" class="sidebar-nav-link" data-nav="profile" data-action="navigate" data-target="profile"><i class="bi bi-person-circle"></i> Profile</a>
+        </div>
+    </nav>
+
+    <!-- APP SHELL: BOTTOM NAV (Mobile) -->
+    <nav class="mobile-nav mob-only app-shell glass-panel" aria-label="Mobile Navigation">
+        <a href="#dashboard" class="mobile-nav-link active" data-nav="dashboard" data-action="navigate" data-target="dashboard"><i class="bi bi-grid-1x2"></i></a>
+        <a href="#tracker" class="mobile-nav-link" data-nav="tracker" data-action="navigate" data-target="tracker"><i class="bi bi-journal-check"></i></a>
+        <a href="#search" class="mobile-nav-link" data-nav="search" data-action="navigate" data-target="search"><i class="bi bi-search"></i></a>
+        <a href="#calculators" class="mobile-nav-link" data-nav="calculators" data-action="navigate" data-target="calculators"><i class="bi bi-sliders"></i></a>
+        <a href="#profile" class="mobile-nav-link" data-nav="profile" data-action="navigate" data-target="profile"><i class="bi bi-person-circle"></i></a>
+    </nav>
+
+    <main class="main-content">
+
+        <!-- ========================================== -->
+        <!-- 1. LANDING PAGE -->
+        <!-- ========================================== -->
+        <section id="landing" class="page-view active" aria-labelledby="landing-heading">
+            <nav class="container pt-4 d-flex justify-content-between align-items-center">
+                <div class="font-display fs-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-activity" style="color: var(--brand-water);"></i> CALTRACK
+                </div>
+                <button class="btn btn-primary px-4 rounded-pill" data-action="navigate" data-target="auth">Sign In</button>
+            </nav>
+            <div class="container d-flex flex-column justify-content-center align-items-center text-center" style="min-height: 80vh;">
+                <div class="badge-subtle mb-4 px-3 py-2" style="border-color: var(--brand-water); color: var(--brand-water);">
+                    <i class="bi bi-shield-check"></i> Session Mode Active
+                </div>
+                <h1 id="landing-heading" class="font-display lh-1 mb-4" style="font-size: clamp(3.5rem, 10vw, 7rem);">Track Like You<br><span style="color: var(--brand-water);">Train. Heavy.</span></h1>
+                <p class="lead mb-5 mx-auto text-secondary" style="max-width: 600px; font-size: 1.1rem;">
+                    Advanced macro calculations, dynamic serving sizing, and seamless session persistence. 
+                </p>
+                <button class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-lg d-flex align-items-center gap-2" data-action="navigate" data-target="auth">
+                    Enter the Forge <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 2. AUTHENTICATION -->
+        <!-- ========================================== -->
+        <section id="auth" class="page-view" aria-labelledby="auth-heading">
+            <div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+                <div class="premium-card p-4 p-md-5 w-100" style="max-width: 440px;">
+                    <button class="btn btn-link text-decoration-none p-0 mb-4 text-secondary d-flex align-items-center gap-2" data-action="navigate" data-target="landing">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    
+                    <div class="text-center mb-4">
+                        <i class="bi bi-activity fs-1 mb-3 d-block" style="color: var(--brand-water);"></i>
+                        <h1 id="auth-heading" class="h4 fw-bold mb-2">Welcome back</h1>
+                        <p class="text-secondary small">Session data is stored temporarily</p>
+                    </div>
+
+                    <form id="loginForm" novalidate>
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="authEmail" placeholder="name@example.com" required value="athlete@caltrack.com">
+                            <label for="authEmail">Email address</label>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control" id="authPassword" placeholder="Password" required value="discipline">
+                            <label for="authPassword">Password</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3 mb-3 d-flex justify-content-center align-items-center gap-2" id="loginBtn">
+                            <span>Initialize Session</span>
+                            <div class="spinner-border spinner-border-sm d-none" role="status"></div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 3. DASHBOARD -->
+        <!-- ========================================== -->
+        <section id="dashboard" class="page-view" aria-labelledby="dash-heading">
+            <header class="d-flex flex-wrap justify-content-between align-items-end mb-4 gap-3">
+                <div>
+                    <h1 id="dash-heading" class="h3 fw-bold mb-1">Dashboard</h1>
+                    <p class="eyebrow m-0" id="current-date">Loading...</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" data-action="navigate" data-target="search"><i class="bi bi-plus-lg"></i> Log Meal</button>
+                </div>
+            </header>
+
+            <div class="row g-4 mb-4">
+                <!-- Calories Ring -->
+                <div class="col-xl-5 col-lg-6">
+                    <article class="premium-card text-center d-flex flex-column h-100 justify-content-center">
+                        <div class="position-relative mx-auto" style="width: 180px; height: 180px;">
+                            <svg class="gauge-svg" viewBox="0 0 36 36">
+                                <circle class="gauge-track" cx="18" cy="18" r="15.9155" />
+                                <circle class="gauge-fill" id="dashCalGauge" cx="18" cy="18" r="15.9155" />
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle text-center w-100">
+                                <div class="font-display fs-1 lh-1" id="dash-cal-remaining">0</div>
+                                <div class="eyebrow mt-1 text-secondary">Remaining</div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between text-secondary eyebrow mt-4 px-3">
+                            <span id="dash-cal-goal">Goal: 0</span>
+                            <span id="dash-cal-eaten">Eaten: 0</span>
+                        </div>
+                    </article>
+                </div>
+                
+                <!-- Macros & Progress -->
+                <div class="col-xl-7 col-lg-6">
+                    <article class="premium-card h-100 d-flex flex-column justify-content-center">
+                        <h2 class="eyebrow mb-4">Macronutrient Distribution</h2>
+                        
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between small fw-bold mb-2">
+                                <span style="color: var(--macro-p)"><i class="bi bi-lightning-charge-fill"></i> Protein</span>
+                                <span id="macro-p-text">0 / 0g</span>
+                            </div>
+                            <div class="progress-slim"><div id="macro-p-bar" class="progress-bar" style="background: var(--macro-p); width: 0%;"></div></div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between small fw-bold mb-2">
+                                <span style="color: var(--macro-c)"><i class="bi bi-basket2-fill"></i> Carbs</span>
+                                <span id="macro-c-text">0 / 0g</span>
+                            </div>
+                            <div class="progress-slim"><div id="macro-c-bar" class="progress-bar" style="background: var(--macro-c); width: 0%;"></div></div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between small fw-bold mb-2">
+                                <span style="color: var(--macro-f)"><i class="bi bi-droplet-half"></i> Fat</span>
+                                <span id="macro-f-text">0 / 0g</span>
+                            </div>
+                            <div class="progress-slim"><div id="macro-f-bar" class="progress-bar" style="background: var(--macro-f); width: 0%;"></div></div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <!-- Mini Log & Hydration -->
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <article class="premium-card h-100 p-0 overflow-hidden d-flex flex-column">
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="border-color: var(--border-subtle) !important;">
+                            <h2 class="eyebrow mb-0">Recent Entries</h2>
+                            <button class="btn btn-sm btn-link text-decoration-none py-0" data-action="navigate" data-target="tracker">View Diary</button>
+                        </div>
+                        <div class="p-3 overflow-auto" style="max-height: 250px;" id="dashboard-mini-log">
+                            <!-- Populated via JS -->
+                        </div>
+                    </article>
+                </div>
+                <div class="col-lg-4">
+                    <article class="premium-card h-100 text-center d-flex flex-column justify-content-center">
+                        <h2 class="eyebrow mb-3">Hydration</h2>
+                        <div class="font-display fs-2 mb-3" id="waterLabel">0.0 / 2.5 L</div>
+                        <div class="d-flex justify-content-center gap-2 fs-3 text-secondary cursor-pointer" id="waterTracker">
+                            <i class="bi bi-droplet-fill water-droplet" data-index="0" style="transition:0.2s"></i>
+                            <i class="bi bi-droplet-fill water-droplet" data-index="1" style="transition:0.2s"></i>
+                            <i class="bi bi-droplet-fill water-droplet" data-index="2" style="transition:0.2s"></i>
+                            <i class="bi bi-droplet-fill water-droplet" data-index="3" style="transition:0.2s"></i>
+                            <i class="bi bi-droplet-fill water-droplet" data-index="4" style="transition:0.2s"></i>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 4. DIARY (Tracker) -->
+        <!-- ========================================== -->
+        <section id="tracker" class="page-view" aria-labelledby="tracker-heading">
+            <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <h1 id="tracker-heading" class="h3 fw-bold mb-0">Diary</h1>
+                <div class="d-flex align-items-center bg-surface border rounded-pill px-2 py-1 shadow-sm" style="border-color:var(--border-strong)!important;">
+                    <span class="fw-semibold px-3 small">Today's Log</span>
+                </div>
+            </header>
+
+            <div id="diary-container">
+                <!-- Rendered by JS categorized by meal -->
+            </div>
+            
+            <button class="btn btn-outline-secondary w-100 py-3 mt-4 border-dashed" data-action="navigate" data-target="search" style="border-style: dashed;">
+                <i class="bi bi-plus-lg"></i> Log a Meal
+            </button>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 5. DATABASE & LOGGING -->
+        <!-- ========================================== -->
+        <section id="search" class="page-view" aria-labelledby="search-heading">
+            <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <h1 id="search-heading" class="h3 fw-bold mb-0">Database</h1>
+                <button class="btn btn-outline-secondary btn-sm" id="btnToggleCustomFood">
+                    <i class="bi bi-plus-circle"></i> Create Custom Food
+                </button>
+            </header>
+
+            <div class="row g-4">
+                <!-- Left Col: Search List OR Custom Food Form -->
+                <div class="col-lg-7">
+                    <!-- Search Mode -->
+                    <div id="searchViewMode">
+                        <div class="position-relative mb-4">
+                            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+                            <input type="text" id="searchInput" class="form-control form-control-lg ps-5 shadow-sm" placeholder="Search foods, brands..." style="border-color:var(--border-strong);">
+                        </div>
+                        <div class="eyebrow mb-3">Results</div>
+                        <div id="searchResults" class="d-flex flex-column gap-2">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Custom Food Creation Mode -->
+                    <div id="customFoodMode" class="d-none">
+                        <article class="premium-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="h5 fw-bold mb-0">Create Custom Food</h2>
+                                <button class="btn btn-sm btn-link text-secondary p-0" id="btnCancelCustom">Cancel</button>
+                            </div>
+                            <form id="customFoodForm">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="cfName" required placeholder="e.g. Grandma's Lasagna">
+                                    <label>Food Name</label>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="cfSize" required placeholder="100" value="100" step="any">
+                                            <label>Default Serving Size</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="cfUnit" required placeholder="g" value="g">
+                                            <label>Unit (e.g. g, oz, cup)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6 col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="cfKcal" required placeholder="0" step="any">
+                                            <label>Calories</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="cfP" required placeholder="0" step="any">
+                                            <label>Protein (g)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="cfC" required placeholder="0" step="any">
+                                            <label>Carbs (g)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="cfF" required placeholder="0" step="any">
+                                            <label>Fat (g)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 py-3">Save to Database</button>
+                            </form>
+                        </article>
+                    </div>
+                </div>
+                
+                <!-- Right Col: Food Detail & Logger -->
+                <div class="col-lg-5">
+                    <article class="premium-card sticky-lg-top d-none" id="foodDetailCard" style="top: 2rem;">
+                        <header class="mb-4">
+                            <span class="badge-subtle mb-2 text-primary d-none" id="badgeVerified" style="color:var(--brand-water)!important; border-color:var(--brand-water);"><i class="bi bi-patch-check-fill"></i> Verified Data</span>
+                            <span class="badge-subtle mb-2 text-primary d-none" id="badgeCustom" style="color:var(--brand-xp)!important; border-color:var(--brand-xp);"><i class="bi bi-person-fill"></i> Custom Entry</span>
+                            <h2 class="h5 fw-bold mb-1" id="fd-name">Food Name</h2>
+                        </header>
+                        
+                        <!-- Serving Engine -->
+                        <div class="p-3 mb-4 rounded border bg-surface-alt" style="border-color:var(--border-subtle)!important;">
+                            <h3 class="eyebrow mb-3">Serving Size Calculator</h3>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control fw-bold" id="fd-size" step="any">
+                                        <label id="fd-size-label">Size (g)</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control fw-bold" id="fd-qty" value="1" step="any">
+                                        <label>Quantity</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-tertiary small mt-2 lh-sm text-center" id="fd-calc-note">
+                                Adjusting these values instantly recalculates macros based on the default profile.
+                            </div>
+                        </div>
+
+                        <!-- Macro Editing Grid -->
+                        <div class="row g-2 text-center mb-4">
+                            <div class="col-12 mb-2"><h3 class="eyebrow m-0">Macronutrients (Editable Override)</h3></div>
+                            <div class="col-6">
+                                <div class="p-2 border rounded" style="border-color:var(--border-subtle)!important;">
+                                    <input type="number" class="macro-input" id="fd-kcal" step="any">
+                                    <div class="eyebrow">Calories</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border rounded" style="border-color:var(--border-subtle)!important;">
+                                    <input type="number" class="macro-input" id="fd-p" style="color:var(--macro-p)" step="any">
+                                    <div class="eyebrow">Protein</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border rounded" style="border-color:var(--border-subtle)!important;">
+                                    <input type="number" class="macro-input" id="fd-c" style="color:var(--macro-c)" step="any">
+                                    <div class="eyebrow">Carbs</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border rounded" style="border-color:var(--border-subtle)!important;">
+                                    <input type="number" class="macro-input" id="fd-f" style="color:var(--macro-f)" step="any">
+                                    <div class="eyebrow">Fat</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Meal Category -->
+                        <div class="form-floating mb-4">
+                            <select class="form-select" id="fd-category">
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch" selected>Lunch</option>
+                                <option value="dinner">Dinner</option>
+                                <option value="snacks">Snacks</option>
+                            </select>
+                            <label>Meal Category</label>
+                        </div>
+
+                        <button class="btn btn-primary w-100 py-3 d-flex justify-content-center gap-2" id="btnAddFood">
+                            <i class="bi bi-plus-circle"></i> Add to Diary
+                        </button>
+                    </article>
+                    
+                    <article class="premium-card text-center py-5 border-dashed" id="foodDetailEmpty" style="border-style: dashed; border-color: var(--border-strong);">
+                        <i class="bi bi-search fs-1 text-tertiary mb-3 d-block"></i>
+                        <p class="text-secondary">Select or create a food to configure servings and macros before logging.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 6. CALCULATORS -->
+        <!-- ========================================== -->
+        <section id="calculators" class="page-view" aria-labelledby="calc-heading">
+            <header class="mb-4">
+                <h1 id="calc-heading" class="h3 fw-bold mb-1">Goal Engineer</h1>
+                <p class="text-secondary small">Scientific target calculation using Mifflin-St Jeor.</p>
+            </header>
+
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <article class="premium-card h-100">
+                        <h2 class="eyebrow mb-4">Biometric Data</h2>
+                        <form id="tdeeForm">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="bioAge" required>
+                                        <label>Age</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="bioGender">
+                                            <option value="m">Male</option>
+                                            <option value="f">Female</option>
+                                        </select>
+                                        <label>Gender</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="bioWeight" required step="any">
+                                        <label>Weight (kg)</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="bioHeight" required step="any">
+                                        <label>Height (cm)</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="bioActivity">
+                                            <option value="1.2">Sedentary (Office job)</option>
+                                            <option value="1.375">Lightly Active (1-3 days/wk)</option>
+                                            <option value="1.55">Moderately Active (3-5 days/wk)</option>
+                                            <option value="1.725">Very Active (6-7 days/wk)</option>
+                                        </select>
+                                        <label>Activity Level</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-3 mt-4">Calculate TDEE</button>
+                        </form>
+                    </article>
+                </div>
+                
+                <div class="col-lg-7">
+                    <article class="premium-card h-100 d-none" id="calcResults">
+                        <h2 class="eyebrow mb-2">Your Results</h2>
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded mb-4" style="background: var(--bg-surface-alt);">
+                            <div>
+                                <span class="fw-bold d-block text-primary">TDEE / Maintenance</span>
+                                <span class="small text-secondary">Total Daily Energy Expenditure</span>
+                            </div>
+                            <span class="font-display fs-2" style="color: var(--brand-water);" id="resTDEE">0</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Select Goal</label>
+                            <select class="form-select bg-surface" id="goalSelector" style="border-color:var(--border-strong);">
+                                <option value="cut">Aggressive Cut (-500 kcal)</option>
+                                <option value="maintain" selected>Maintain Weight</option>
+                                <option value="bulk">Lean Bulk (+300 kcal)</option>
+                            </select>
+                        </div>
+
+                        <div class="row g-2 text-center mb-4">
+                            <div class="col-4">
+                                <div class="p-2 border rounded" style="border-color:var(--border-subtle)!important;">
+                                    <div class="font-mono fw-bold fs-5" id="tgt-p" style="color:var(--macro-p)">0g</div>
+                                    <div class="eyebrow mt-1">Pro</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 border rounded" style="border-color:var(--border-subtle)!important;">
+                                    <div class="font-mono fw-bold fs-5" id="tgt-c" style="color:var(--macro-c)">0g</div>
+                                    <div class="eyebrow mt-1">Carbs</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 border rounded" style="border-color:var(--border-subtle)!important;">
+                                    <div class="font-mono fw-bold fs-5" id="tgt-f" style="color:var(--macro-f)">0g</div>
+                                    <div class="eyebrow mt-1">Fat</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary w-100" id="btnApplyGoals">Apply Targets to Dashboard</button>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 7. PROFILE -->
+        <!-- ========================================== -->
+        <section id="profile" class="page-view" aria-labelledby="profile-heading">
+            <h1 id="profile-heading" class="h3 fw-bold mb-4">Settings</h1>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <article class="premium-card">
+                        <h2 class="eyebrow mb-4">Profile</h2>
+                        <form id="profileForm">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="profName" required>
+                                <label>Display Name</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Profile</button>
+                        </form>
+                    </article>
+                </div>
+                <div class="col-md-6">
+                    <article class="premium-card">
+                        <h2 class="eyebrow mb-4">Preferences</h2>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <div class="fw-semibold">Dark Theme</div>
+                                <div class="text-tertiary small">OLED optimized contrast</div>
+                            </div>
+                            <div class="form-check form-switch m-0 p-0">
+                                <input class="form-check-input float-none m-0 fs-4" type="checkbox" role="switch" id="themeToggle" aria-label="Toggle Theme">
+                            </div>
+                        </div>
+                        <div class="pt-4 border-top" style="border-color:var(--border-subtle)!important;">
+                            <button class="btn btn-outline-secondary text-danger w-100 border-0 bg-surface-alt" onclick="app.logout()">
+                                Wipe Session Data & Sign Out
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JS Architecture -->
+    <script>
+        /**
+         * MOCK DATABASE (Base System Foods)
+         */
+        const SYSTEM_FOOD_DB = [
+            { id: 's1', name: 'Chicken Breast, Raw', kcal: 165, p: 31, c: 0, f: 3.6, size: 100, unit: 'g', isSystem: true },
+            { id: 's2', name: 'White Rice, Cooked', kcal: 130, p: 2.7, c: 28, f: 0.3, size: 100, unit: 'g', isSystem: true },
+            { id: 's3', name: 'Whole Egg, Large', kcal: 72, p: 6.3, c: 0.4, f: 4.8, size: 50, unit: 'g', isSystem: true },
+            { id: 's4', name: 'Oatmeal, Dry', kcal: 389, p: 16.9, c: 66.3, f: 6.9, size: 100, unit: 'g', isSystem: true },
+            { id: 's5', name: 'Whey Protein Isolate', kcal: 110, p: 25, c: 1, f: 0.5, size: 30, unit: 'g', isSystem: true },
+            { id: 's6', name: 'Olive Oil, Extra Virgin', kcal: 119, p: 0, c: 0, f: 13.5, size: 14, unit: 'g', isSystem: true }
+        ];
+
+        /**
+         * SESSION STATE MANAGEMENT
+         * Ensures data lives only as long as the tab session.
+         */
+        class SessionStore {
+            static get(key, fallback) {
+                const data = sessionStorage.getItem(`caltrack_${key}`);
+                return data ? JSON.parse(data) : fallback;
+            }
+            static set(key, value) {
+                sessionStorage.setItem(`caltrack_${key}`, JSON.stringify(value));
+            }
+            static clear() {
+                sessionStorage.clear();
+            }
+        }
+
+        const DEFAULT_STATE = {
+            user: { name: 'Athlete', age: 28, weight: 75, height: 180, gender: 'm', activity: '1.375' },
+            goals: { kcal: 2500, p: 160, c: 250, f: 95 },
+            diary: { breakfast: [], lunch: [], dinner: [], snacks: [] },
+            customFoods: [],
+            water: 0,
+            xp: 0,
+            theme: 'dark'
+        };
+
+        /**
+         * MAIN APPLICATION CONTROLLER
+         */
+        class App {
+            constructor() {
+                this.state = SessionStore.get('state', DEFAULT_STATE);
+                this.activeFoodContext = null; // Temp holder for calculation
+                this.initDOM();
+                this.bindEvents();
+                this.initApp();
+            }
+
+            initDOM() {
+                this.toastContainer = document.getElementById('toastContainer');
+                this.themeToggle = document.getElementById('themeToggle');
+            }
+
+            initApp() {
+                this.applyTheme(this.state.theme);
+                this.updateDate();
+                
+                const hasSession = sessionStorage.getItem('caltrack_session_active');
+                const hash = window.location.hash.replace('#', '');
+                
+                if (hasSession) {
+                    this.hydrateUI();
+                    this.navigateTo(hash || 'dashboard');
+                } else {
+                    this.navigateTo('landing');
+                }
+            }
+
+            hydrateUI() {
+                this.updateProfileUI();
+                this.renderDashboard();
+                this.renderDiary();
+                this.renderWater();
+                this.updateGamification();
+                
+                // If search input has value, re-trigger search to show custom foods if any
+                const q = document.getElementById('searchInput').value;
+                if(q) this.handleSearch(q);
+            }
+
+            saveState() {
+                SessionStore.set('state', this.state);
+                this.hydrateUI();
+            }
+
+            /* --- ROUTING --- */
+            navigateTo(pageId) {
+                const target = document.getElementById(pageId);
+                if (!target) return;
+
+                document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+                target.classList.add('active');
+
+                const isPublic = ['landing', 'auth'].includes(pageId);
+                document.body.classList.toggle('public-view', isPublic);
+
+                document.querySelectorAll('.sidebar-nav-link, .mobile-nav-link').forEach(link => {
+                    link.classList.toggle('active', link.dataset.nav === pageId);
+                });
+
+                if(pageId === 'dashboard') setTimeout(() => this.animateGauges(), 50);
+                if(pageId === 'search') document.getElementById('searchInput').focus();
+
+                window.scrollTo({ top: 0 });
+                window.history.replaceState(null, null, `#${pageId}`);
+            }
+
+            /* --- EVENTS --- */
+            bindEvents() {
+                document.addEventListener('click', (e) => {
+                    const navBtn = e.target.closest('[data-action="navigate"]');
+                    if (navBtn) { e.preventDefault(); this.navigateTo(navBtn.dataset.target); }
+                });
+
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    sessionStorage.setItem('caltrack_session_active', 'true');
+                    this.hydrateUI();
+                    this.showToast('Session Initialized.', 'success');
+                    this.navigateTo('dashboard');
+                });
+
+                this.themeToggle.addEventListener('change', (e) => this.applyTheme(e.target.checked ? 'dark' : 'light'));
+
+                document.getElementById('profileForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.state.user.name = document.getElementById('profName').value;
+                    this.saveState();
+                    this.showToast('Profile updated.', 'success');
+                });
+
+                /* Search & Serving Calculator Engine */
+                document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
+                
+                // Live Calculator triggers
+                ['fd-size', 'fd-qty'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', () => this.recalculateFoodContext());
+                });
+
+                // Add to Diary Logic
+                document.getElementById('btnAddFood').addEventListener('click', () => {
+                    if(!this.activeFoodContext) return;
+                    
+                    const category = document.getElementById('fd-category').value;
+                    
+                    // Capture whatever is currently typed in the editable grid
+                    const loggedFood = {
+                        id: Date.now().toString(),
+                        name: this.activeFoodContext.name,
+                        size: parseFloat(document.getElementById('fd-size').value) || 0,
+                        unit: this.activeFoodContext.unit,
+                        qty: parseFloat(document.getElementById('fd-qty').value) || 1,
+                        kcal: parseFloat(document.getElementById('fd-kcal').value) || 0,
+                        p: parseFloat(document.getElementById('fd-p').value) || 0,
+                        c: parseFloat(document.getElementById('fd-c').value) || 0,
+                        f: parseFloat(document.getElementById('fd-f').value) || 0,
+                        timestamp: Date.now()
+                    };
+
+                    this.state.diary[category].push(loggedFood);
+                    this.state.xp += 15; // Gamification
+                    this.saveState();
+                    
+                    this.showToast(`${loggedFood.name} logged to ${category}. +15 XP!`, 'success');
+                    this.hideFoodDetail();
+                    this.navigateTo('tracker');
+                });
+
+                /* Custom Food Form */
+                document.getElementById('btnToggleCustomFood').addEventListener('click', () => {
+                    document.getElementById('searchViewMode').classList.add('d-none');
+                    document.getElementById('customFoodMode').classList.remove('d-none');
+                    this.hideFoodDetail();
+                });
+
+                document.getElementById('btnCancelCustom').addEventListener('click', () => {
+                    document.getElementById('searchViewMode').classList.remove('d-none');
+                    document.getElementById('customFoodMode').classList.add('d-none');
+                });
+
+                document.getElementById('customFoodForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const newFood = {
+                        id: 'c_' + Date.now(),
+                        name: document.getElementById('cfName').value,
+                        size: parseFloat(document.getElementById('cfSize').value),
+                        unit: document.getElementById('cfUnit').value,
+                        kcal: parseFloat(document.getElementById('cfKcal').value),
+                        p: parseFloat(document.getElementById('cfP').value),
+                        c: parseFloat(document.getElementById('cfC').value),
+                        f: parseFloat(document.getElementById('cfF').value),
+                        isSystem: false
+                    };
+                    this.state.customFoods.push(newFood);
+                    this.saveState();
+                    
+                    // Reset UI
+                    e.target.reset();
+                    document.getElementById('searchViewMode').classList.remove('d-none');
+                    document.getElementById('customFoodMode').classList.add('d-none');
+                    
+                    // Show in search automatically
+                    document.getElementById('searchInput').value = newFood.name;
+                    this.handleSearch(newFood.name);
+                    this.showToast('Custom food saved to session.', 'success');
+                });
+
+                /* Calculators */
+                document.getElementById('tdeeForm').addEventListener('submit', (e) => this.handleTDEECalc(e));
+                document.getElementById('goalSelector').addEventListener('change', (e) => this.updateGoalPreview(e.target.value));
+                document.getElementById('btnApplyGoals').addEventListener('click', () => {
+                    this.state.goals = this.tempGoals;
+                    this.state.user.age = document.getElementById('bioAge').value;
+                    this.state.user.weight = document.getElementById('bioWeight').value;
+                    this.state.user.height = document.getElementById('bioHeight').value;
+                    this.saveState();
+                    this.showToast('Targets applied to Dashboard.', 'success');
+                    this.navigateTo('dashboard');
+                });
+
+                /* Water Tracker */
+                document.querySelectorAll('.water-droplet').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        const idx = parseInt(e.target.dataset.index);
+                        const isCurrentlyActive = e.target.style.color === 'var(--brand-water)';
+                        this.state.water = isCurrentlyActive ? idx : idx + 1;
+                        this.saveState();
+                    });
+                });
+            }
+
+            /* --- RENDER ENGINE --- */
+            applyTheme(theme) {
+                this.state.theme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                if(this.themeToggle) this.themeToggle.checked = (theme === 'dark');
+                SessionStore.set('state', this.state);
+            }
+
+            logout() {
+                SessionStore.clear();
+                window.location.reload();
+            }
+
+            updateDate() {
+                document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase();
+            }
+
+            updateProfileUI() {
+                document.getElementById('profName').value = this.state.user.name;
+                document.getElementById('sidebar-name').textContent = this.state.user.name;
+                
+                document.getElementById('bioAge').value = this.state.user.age;
+                document.getElementById('bioWeight').value = this.state.user.weight;
+                document.getElementById('bioHeight').value = this.state.user.height;
+                document.getElementById('bioGender').value = this.state.user.gender;
+                document.getElementById('bioActivity').value = this.state.user.activity;
+            }
+
+            updateGamification() {
+                const level = Math.floor(this.state.xp / 100) + 1;
+                const progress = (this.state.xp % 100);
+                document.getElementById('sidebar-level').textContent = level;
+                document.getElementById('sidebar-xp').style.width = `${progress}%`;
+            }
+
+            getDailyTotals() {
+                const totals = { kcal: 0, p: 0, c: 0, f: 0 };
+                Object.values(this.state.diary).forEach(mealArray => {
+                    mealArray.forEach(f => {
+                        totals.kcal += f.kcal; totals.p += f.p; totals.c += f.c; totals.f += f.f;
+                    });
+                });
+                return totals;
+            }
+
+            renderDashboard() {
+                const totals = this.getDailyTotals();
+                const g = this.state.goals;
+
+                const remaining = Math.max(0, g.kcal - totals.kcal);
+                document.getElementById('dash-cal-remaining').textContent = Math.round(remaining);
+                document.getElementById('dash-cal-goal').textContent = `Goal: ${Math.round(g.kcal)}`;
+                document.getElementById('dash-cal-eaten').textContent = `Eaten: ${Math.round(totals.kcal)}`;
+                
+                document.getElementById('macro-p-text').textContent = `${Math.round(totals.p)} / ${Math.round(g.p)}g`;
+                document.getElementById('macro-c-text').textContent = `${Math.round(totals.c)} / ${Math.round(g.c)}g`;
+                document.getElementById('macro-f-text').textContent = `${Math.round(totals.f)} / ${Math.round(g.f)}g`;
+
+                document.getElementById('macro-p-bar').style.width = `${Math.min(100, (totals.p / g.p) * 100) || 0}%`;
+                document.getElementById('macro-c-bar').style.width = `${Math.min(100, (totals.c / g.c) * 100) || 0}%`;
+                document.getElementById('macro-f-bar').style.width = `${Math.min(100, (totals.f / g.f) * 100) || 0}%`;
+
+                const gauge = document.getElementById('dashCalGauge');
+                gauge.dataset.targetOffset = 100 - (Math.min(100, (totals.kcal / g.kcal) * 100) || 0);
+                
+                // Mini Log Aggregation (last 3 items logged across all categories based on timestamp)
+                const allEntries = [];
+                Object.keys(this.state.diary).forEach(cat => {
+                    this.state.diary[cat].forEach(item => allEntries.push({...item, cat}));
+                });
+                allEntries.sort((a,b) => b.timestamp - a.timestamp);
+
+                const miniLog = document.getElementById('dashboard-mini-log');
+                if (allEntries.length === 0) {
+                    miniLog.innerHTML = '<div class="text-tertiary text-center small py-3">No foods logged today.</div>';
+                } else {
+                    miniLog.innerHTML = allEntries.slice(0,3).map(food => `
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color:var(--border-subtle)!important;">
+                            <div>
+                                <div class="fw-semibold small">${food.name}</div>
+                                <div class="eyebrow text-tertiary">${food.cat}</div>
+                            </div>
+                            <div class="font-mono fw-bold text-secondary">${Math.round(food.kcal)}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            animateGauges() {
+                const gauge = document.getElementById('dashCalGauge');
+                if(gauge && gauge.dataset.targetOffset) {
+                    gauge.style.strokeDashoffset = '100';
+                    setTimeout(() => gauge.style.strokeDashoffset = gauge.dataset.targetOffset, 10);
+                }
+            }
+
+            renderWater() {
+                document.querySelectorAll('.water-droplet').forEach((drop, idx) => {
+                    drop.style.color = idx < this.state.water ? 'var(--brand-water)' : 'var(--text-tertiary)';
+                    drop.style.opacity = idx < this.state.water ? '1' : '0.3';
+                });
+                document.getElementById('waterLabel').textContent = `${(this.state.water * 0.5).toFixed(1)} / 2.5 L`;
+            }
+
+            renderDiary() {
+                const container = document.getElementById('diary-container');
+                container.innerHTML = ''; // clear
+                
+                ['breakfast', 'lunch', 'dinner', 'snacks'].forEach(category => {
+                    const meals = this.state.diary[category];
+                    const catTotals = meals.reduce((acc, curr) => {
+                        acc.kcal += curr.kcal; acc.p += curr.p; acc.c += curr.c; acc.f += curr.f;
+                        return acc;
+                    }, {kcal:0, p:0, c:0, f:0});
+
+                    const html = `
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-end mb-2 border-bottom pb-2" style="border-color: var(--border-strong)!important;">
+                                <h2 class="h5 mb-0 text-capitalize">${category}</h2>
+                                <span class="font-mono fw-bold text-secondary">${Math.round(catTotals.kcal)} kcal</span>
+                            </div>
+                            ${meals.length === 0 ? `<div class="text-tertiary small py-2">Nothing logged.</div>` : meals.map((food, idx) => `
+                                <div class="food-item">
+                                    <div>
+                                        <div class="fw-semibold">${food.name}</div>
+                                        <div class="text-tertiary small mt-1">
+                                            ${food.size}${food.unit} x ${food.qty} • 
+                                            <span style="color:var(--macro-p)">${Math.round(food.p)}g P</span> • 
+                                            <span style="color:var(--macro-c)">${Math.round(food.c)}g C</span> • 
+                                            <span style="color:var(--macro-f)">${Math.round(food.f)}g F</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="font-mono fw-bold fs-5">${Math.round(food.kcal)}</span>
+                                        <button class="btn btn-sm text-secondary p-0" onclick="app.deleteFood('${category}', ${idx})"><i class="bi bi-x-circle fs-5"></i></button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+            }
+
+            deleteFood(category, index) {
+                this.state.diary[category].splice(index, 1);
+                this.saveState();
+                this.showToast('Item removed.');
+            }
+
+            /* --- SEARCH & SERVING ENGINE --- */
+            getCombinedDatabase() {
+                return [...SYSTEM_FOOD_DB, ...this.state.customFoods];
+            }
+
+            handleSearch(query) {
+                const resultsContainer = document.getElementById('searchResults');
+                if (query.length < 2) {
+                    resultsContainer.innerHTML = '';
+                    this.hideFoodDetail();
+                    return;
+                }
+
+                const db = this.getCombinedDatabase();
+                const matches = db.filter(f => f.name.toLowerCase().includes(query.toLowerCase()));
+                
+                if(matches.length === 0) {
+                    resultsContainer.innerHTML = '<div class="text-tertiary small">No exact match. Try creating a custom food.</div>';
+                    return;
+                }
+
+                resultsContainer.innerHTML = matches.map(food => {
+                    const icon = food.isSystem ? '<i class="bi bi-patch-check-fill text-primary" style="color:var(--brand-water)!important"></i>' : '<i class="bi bi-person-fill" style="color:var(--brand-xp)"></i>';
+                    return `
+                    <div class="food-item cursor-pointer" onclick='app.selectFood(${JSON.stringify(food)})'>
+                        <div>
+                            <div class="fw-semibold d-flex align-items-center gap-2">${icon} ${food.name}</div>
+                            <div class="text-tertiary small">${food.size}${food.unit} • ${food.kcal} kcal</div>
+                        </div>
+                        <i class="bi bi-chevron-right text-tertiary"></i>
+                    </div>
+                `}).join('');
+            }
+
+            selectFood(food) {
+                this.activeFoodContext = food; // Store baseline unmodified object
+                
+                document.getElementById('foodDetailEmpty').classList.add('d-none');
+                const card = document.getElementById('foodDetailCard');
+                card.classList.remove('d-none');
+                
+                document.getElementById('badgeVerified').classList.toggle('d-none', !food.isSystem);
+                document.getElementById('badgeCustom').classList.toggle('d-none', !!food.isSystem);
+                
+                document.getElementById('fd-name').textContent = food.name;
+                document.getElementById('fd-size-label').textContent = `Size (${food.unit})`;
+                
+                // Initialize Form Inputs
+                document.getElementById('fd-size').value = food.size;
+                document.getElementById('fd-qty').value = 1;
+                
+                this.recalculateFoodContext(); // Force initial calc
+            }
+
+            recalculateFoodContext() {
+                if(!this.activeFoodContext) return;
+                
+                const base = this.activeFoodContext;
+                const userSize = parseFloat(document.getElementById('fd-size').value) || 0;
+                const userQty = parseFloat(document.getElementById('fd-qty').value) || 0;
+
+                // Core Logic: (User Size / Base Size) * Quantity
+                const multiplier = (userSize / base.size) * userQty;
+
+                // Push calculated values directly into editable inputs
+                document.getElementById('fd-kcal').value = (base.kcal * multiplier).toFixed(1);
+                document.getElementById('fd-p').value = (base.p * multiplier).toFixed(1);
+                document.getElementById('fd-c').value = (base.c * multiplier).toFixed(1);
+                document.getElementById('fd-f').value = (base.f * multiplier).toFixed(1);
+            }
+
+            hideFoodDetail() {
+                this.activeFoodContext = null;
+                document.getElementById('foodDetailEmpty').classList.remove('d-none');
+                document.getElementById('foodDetailCard').classList.add('d-none');
+            }
+
+            /* --- GOAL ENGINEER --- */
+            handleTDEECalc(e) {
+                e.preventDefault();
+                const weight = parseFloat(document.getElementById('bioWeight').value);
+                const height = parseFloat(document.getElementById('bioHeight').value);
+                const age = parseFloat(document.getElementById('bioAge').value);
+                const gender = document.getElementById('bioGender').value;
+                const activity = parseFloat(document.getElementById('bioActivity').value);
+
+                let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+                bmr += (gender === 'm') ? 5 : -161;
+                this.baseTDEE = Math.round(bmr * activity);
+                
+                document.getElementById('calcResults').classList.remove('d-none');
+                document.getElementById('goalSelector').value = 'maintain';
+                this.updateGoalPreview('maintain');
+                
+                // Scroll to results on mobile
+                document.getElementById('calcResults').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            }
+
+            updateGoalPreview(goalType) {
+                let targetKcal = this.baseTDEE;
+                if (goalType === 'cut') targetKcal -= 500;
+                if (goalType === 'bulk') targetKcal += 300;
+
+                // High protein split based on Iron Discipline prompt: ~30P/40C/30F
+                const targetP = Math.round((targetKcal * 0.3) / 4);
+                const targetC = Math.round((targetKcal * 0.4) / 4);
+                const targetF = Math.round((targetKcal * 0.3) / 9);
+
+                document.getElementById('resTDEE').textContent = targetKcal;
+                document.getElementById('tgt-p').textContent = `${targetP}g`;
+                document.getElementById('tgt-c').textContent = `${targetC}g`;
+                document.getElementById('tgt-f').textContent = `${targetF}g`;
+
+                this.tempGoals = { kcal: targetKcal, p: targetP, c: targetC, f: targetF };
+            }
+
+            /* --- UTILS --- */
+            showToast(message, type = 'success') {
+                const toastEl = document.createElement('div');
+                toastEl.className = `toast align-items-center border-0 shadow-md fade show`;
+                toastEl.setAttribute('role', 'alert');
+                toastEl.style.background = 'var(--bg-surface)';
+                toastEl.style.color = 'var(--text-primary)';
+                toastEl.style.borderRadius = 'var(--radius-sm)';
+                
+                const icon = type === 'success' ? 'check-circle-fill text-success' : 'info-circle-fill text-primary';
+                
+                toastEl.innerHTML = `<div class="d-flex px-3 py-2 align-items-center gap-3"><i class="bi bi-${icon} fs-5"></i><span class="fw-medium">${message}</span></div>`;
+                
+                this.toastContainer.appendChild(toastEl);
+                setTimeout(() => { toastEl.classList.remove('show'); setTimeout(() => toastEl.remove(), 300); }, 3000);
+            }
+        }
+
+        // Boot
+        document.addEventListener('DOMContentLoaded', () => window.app = new App());
+    </script>
+</body>
+</html>
